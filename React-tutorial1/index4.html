@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<link rel="stylesheet" type="text/css"  href="module.css" >
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.2.0/react-dom.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<h1>ReactTest1</h1>
+<div id="displayText"> </div>
+<script type="text/babel">
+
+    var Dashboard=React.createClass({
+
+
+
+        getInitialState: function(){
+            return{Comments:['Init Comment']  }
+        },
+        SetEditComment:function (index) {
+            this.setState({Edit:index});
+
+            console.log("done!");
+        },
+
+        AddNewComment:function(item){
+            var c=this.state.Comments;
+            c.push(item);
+            this.setState({Comments:c,Edit:null});
+        },
+        DeleteExestingComments:function(index){
+
+            var c=this.state.Comments;
+            c.splice(index,1);
+            this.setState({Comments:c});
+        },
+        EditExistingComments:function (index,value) {
+            var c=this.state.Comments;
+            c[index]=value;
+            this.setState({Comments:c,Edit:null});
+        },
+        LoopCommentItems:function (item,index) {
+            var IsEdit=false;
+            if(this.state.Edit==index)
+            {
+                IsEdit=true;
+            }
+
+            return( <CommentItems DeleteComment={this.DeleteExestingComments} IsEdit={IsEdit}   SetEdit={this.SetEditComment} EditComment={this.EditExistingComments} key={index} index={index}>{item}</CommentItems>)
+        },
+
+        render:function() {
+            return (
+                    <div className="Dashboard">
+                        <h2>Dashboard</h2>
+                        <InputPanel AddComment={this.AddNewComment}>Add</InputPanel>
+
+                        {this.state.Comments.map(this.LoopCommentItems)}
+
+                        <hr/>
+                    </div>
+            );
+        }
+
+    });
+
+    var InputPanel=React.createClass({
+
+        AddComment:function(){
+            var commentText=this.refs.CommentInput.value;
+            if(commentText) {
+                this.props.AddComment(commentText);
+                this.refs.CommentInput.value = ''
+                console.log("Text \"" + commentText + "\" Has been added To comment");
+            }
+        },
+        render:function(){
+            return (
+                    <div >
+                        <input type="text"  ref="CommentInput"  ></input>
+                        <button  name="Add" onClick={this.AddComment} >Add</button>
+                    </div>);
+        }
+
+
+
+    });
+
+    var CommentItems=React.createClass({
+
+        getInitialState:function () {
+            return {EditMode:false ,Comment:this.props.children };
+
+        },
+        CommentChange:function () {
+            this.setState({Comment: this.refs.NewComment.value});
+        },
+        Delete:function () {
+            var i=this.props.index;
+            this.props.DeleteComment(i);
+        },
+        Edit:function () {
+            this.props.SetEdit(this.props.index)
+            console.log("Set Edit item index "+this.props.index );
+        },
+        Save:function () {
+
+            var newComment=this.refs.NewComment.value;
+            var i=this.props.index;
+            this.props.EditComment(i,newComment);
+            this.setState({EditMode:false});
+        },
+        render:function(){
+            if(!this.props.IsEdit)
+            {
+                return (
+                        <div className="CommentItem">
+
+                            <p>{this.props.children}</p>
+                            <button    onClick={this.Delete} >Delete</button>
+                            <button    onClick={this.Edit} >Edit</button>
+                        </div>
+                );}else {
+                return( <div className="CommentItem">
+                    <input ref="NewComment" type="text" onChange={this.CommentChange}  defaultValue ={this.props.children}   />
+                    <div ref="lblComment" >{this.state.Comment}    </div>
+                    <button onClick={this.Save}>Save</button>
+                </div>);
+            }
+        }
+
+    });
+    ReactDOM.render(<Dashboard/>,document.getElementById("displayText"));
+</script>
+</body>
+</html>
